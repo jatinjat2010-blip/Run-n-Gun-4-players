@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run'n Gun: Tactical Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-wrapper">
+        <div id="viewport">
+            <canvas id="grid-canvas" width="600" height="600"></canvas>
+            <div id="board-controls">
+                <button id="btn-roll-die" class="btn dice-roll-btn" type="button">
+                    <span class="dice-roll-label">ROLL DICE</span>
+                    <span id="dice-value" class="dice-roll-value">--</span>
+                </button>
+                <button id="btn-use-power" class="btn btn-power">USE POWER</button>
+                <div id="info-panel" class="info-panel">
+                    <div class="info-title">Info:</div>
+                    <span id="info-text" class="info-text"></span>
+                </div>
+                <button id="btn-quit-to-menu" class="btn btn-danger" type="button">Quit To Menu</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="main-menu-overlay" class="mode-overlay">
+        <div class="mode-modal">
+            <div class="mode-title">Run'n Gun</div>
+            <div class="mode-buttons">
+                <button id="menu-play" class="btn btn-primary">Play</button>
+                <button id="menu-tutorial" class="btn btn-power">Tutorial</button>
+                <button id="menu-rules" class="btn btn-warning">Rules</button>
+            </div>
+            <button id="menu-audio-toggle" class="btn">Sound &amp; VFX</button>
+            <div id="audio-settings-panel" class="audio-settings hidden">
+                <div class="audio-label-row">
+                    <label for="bgm-volume">Music Volume</label>
+                    <span id="bgm-volume-value">70%</span>
+                </div>
+                <input id="bgm-volume" type="range" min="0" max="100" value="70" step="1">
+                <div class="audio-label-row">
+                    <label for="sfx-volume">SFX Volume</label>
+                    <span id="sfx-volume-value">70%</span>
+                </div>
+                <input id="sfx-volume" type="range" min="0" max="100" value="70" step="1">
+            </div>
+        </div>
+    </div>
+
+    <div id="mode-overlay" class="mode-overlay hidden">
+        <div class="mode-modal">
+            <div class="mode-title">Play Setup</div>
+
+            <div class="team-config-grid">
+                <label for="mode-blue-policy">Blue</label>
+                <select id="mode-blue-policy">
+                    <option value="human">Human</option>
+                    <option value="main">Main AI</option>
+                    <option value="greedy">Greedy AI</option>
+                    <option value="random">Random AI</option>
+                    <option value="none">None</option>
+                </select>
+
+                <label for="mode-red-policy">Red</label>
+                <select id="mode-red-policy">
+                    <option value="human">Human</option>
+                    <option value="main">Main AI</option>
+                    <option value="greedy">Greedy AI</option>
+                    <option value="random">Random AI</option>
+                    <option value="none">None</option>
+                </select>
+
+                <label for="mode-yellow-policy">Yellow</label>
+                <select id="mode-yellow-policy">
+                    <option value="human">Human</option>
+                    <option value="main">Main AI</option>
+                    <option value="greedy">Greedy AI</option>
+                    <option value="random">Random AI</option>
+                    <option value="none">None</option>
+                </select>
+
+                <label for="mode-green-policy">Green</label>
+                <select id="mode-green-policy">
+                    <option value="human">Human</option>
+                    <option value="main">Main AI</option>
+                    <option value="greedy">Greedy AI</option>
+                    <option value="random">Random AI</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+
+            <div id="mode-validation" class="mode-validation hidden"></div>
+
+            <div class="mode-buttons">
+                <button id="mode-start" class="btn btn-danger">Start</button>
+                <button id="mode-back" class="btn">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tutorial-overlay" class="mode-overlay hidden">
+        <div class="mode-modal">
+            <div class="mode-title">Tutorial</div>
+            <div class="text-page">
+                Guided tutorial with hero dialog and interactive steps.
+            </div>
+            <div class="overlay-actions">
+                <button id="tutorial-start" class="btn btn-primary">Start Tutorial</button>
+                <button id="tutorial-back" class="btn">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rules-overlay" class="mode-overlay hidden">
+        <div class="mode-modal">
+            <div class="mode-title">Rules</div>
+            <div class="text-page">
+                <div class="rules-block">
+                    <div class="rules-section-title">A) General Rules</div>
+                    <ol>
+                        <li>This is a 2-4 player game: Red vs Blue vs Yellow vs Green.</li>
+                        <li>Each player controls 5 soldier units, each with a unique identity (ID 1-5).</li>
+                        <li>The objective is to move soldiers from your Start Line to the Finish Line and score more points than your opponent.</li>
+                        <li>The game has three phases: Placement, Main, and Game Over.</li>
+                        <li>The first player is chosen randomly.</li>
+                        <li>Each player has three holding areas: Inventory, Dead, and Finished.</li>
+                        <li>At game start, all 5 soldiers begin in Inventory.</li>
+                        <li>During placement, players alternate placing one soldier on their own Start Line until all soldiers are placed.</li>
+                        <li>Soldiers eliminated in Main Phase move to Dead.</li>
+                        <li>Soldiers that reach Finish move to Finished and are no longer active.</li>
+                        <li>After placement, the game enters Main Phase.</li>
+                        <li>Players alternate turns until the game ends.</li>
+                        <li>Enemy soldier IDs are hidden. An ID is revealed when that soldier uses power, and stays revealed until it dies or finishes.</li>
+                        <li>On each turn, a player chooses one action: Roll Dice or Use Power (exception: ID 4).</li>
+                        <li>The game ends immediately if only one team remains onboard.</li>
+                    </ol>
+
+                    <div class="rules-section-title">B) Movement Rules</div>
+                    <ol>
+                        <li>The battlefield is a 12x12 grid.</li>
+                        <li>Movement uses a D3 roll.</li>
+                        <li>After rolling, exactly one soldier must move exactly the rolled value (no partial movement).</li>
+                        <li>If no legal move exists for that roll, the turn is skipped.</li>
+                        <li>To finish, a soldier must land exactly on Finish Line.</li>
+                        <li>A soldier cannot land on a friendly unit.</li>
+                        <li>If a soldier lands on an enemy unit, the stationary enemy is eliminated.</li>
+                        <li>After rolling, player cannot switch to power that turn.</li>
+                    </ol>
+
+                    <div class="rules-section-title">C) Power Rules</div>
+                    <ol>
+                        <li>Instead of rolling, a player may use a soldier power.</li>
+                        <li>Powers by ID:
+                            <ul>
+                                <li>ID 1 Recruit: no special power.</li>
+                                <li>ID 2 Blockader: places barricades.</li>
+                                <li>ID 3 Sniper: straight-line elimination in chosen direction.</li>
+                                <li>ID 4 Freeze: affects 8 adjacent squares around itself; frozen soldiers cannot move or use powers.</li>
+                                <li>ID 5 Nuke: similar to sniper but across three parallel battle lines in chosen orientation.</li>
+                            </ul>
+                        </li>
+                        <li>A power can be used once per lifetime.</li>
+                        <li>Resurrected soldiers regain their power.</li>
+                        <li>Using power reveals that soldier’s identity.</li>
+                        <li>Exception: ID 4 may use freeze after moving in the same turn.</li>
+                        <li>Special interactions (also shown in gameplay):
+                            <ul>
+                                <li>Barricades have placement restrictions.</li>
+                                <li>Auto-barricade can trigger when ID 2 is hit by gun/nuke.</li>
+                                <li>ID 4 may jump over frozen soldiers.</li>
+                                <li>ID 2 may jump over barricades.</li>
+                                <li>Power can only be used in battlefield not from start line</li>
+
+                            </ul>
+                        </li>
+                        <li>If a player has only one soldier left (on board or Start Line), that soldier ignores freeze and barricade effects.</li>
+                        <li>When a soldier leaves board (finished/eliminated) or gets frozen, its persistent effects(barricades/freezes) are removed.</li>
+                    </ol>
+
+                    <div class="rules-section-title">D) Finishing, Resurrection &amp; Scoring</div>
+                    <ol>
+                        <li>When a soldier reaches Finish, it moves to Finished and is no longer active.</li>
+                        <li>Player gains points equal to that soldier’s ID.</li>
+                        <li>For each soldier that finishes, player must resurrect one soldier from Dead if available.</li>
+                        <li>Resurrected soldiers are placed on Start Line.</li>
+                    </ol>
+
+                    <div class="rules-section-title">E) Game Over &amp; Winning</div>
+                    <ol>
+                        <li>Game ends immediately if only one team left onboard.</li>
+                        <li>Final scores are compared.</li>
+                        <li>Higher score wins.</li>
+                         <li>A team finishing all its soldier 1st will be awarded +4 bonus points.</li>
+                        <li>+3 bonus for 2nd and +2 bonus for third finishing team.</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="overlay-actions">
+                <button id="rules-back" class="btn">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameover-overlay" class="mode-overlay hidden">
+        <div class="mode-modal gameover-modal">
+            <div class="mode-title">Game Over</div>
+            <div id="gameover-winner" class="gameover-winner">--</div>
+            <div id="gameover-score" class="gameover-score">Blue 0 - 0 Red</div>
+            <button id="btn-play-again" class="btn btn-primary">Play Again</button>
+        </div>
+    </div>
+
+    <div id="tutorial-scene" class="tutorial-scene hidden">
+        <img id="tutorial-hero-box" class="tutorial-hero-box" src="../pics/hero with box.png" alt="Tutorial Hero">
+        <div id="tutorial-dialog-text" class="tutorial-dialog-text"></div>
+        <img id="tutorial-arrow" class="tutorial-arrow hidden" src="../pics/arrow.png" alt="Pointer">
+        <div class="tutorial-actions">
+            <button id="tutorial-next" class="btn btn-primary hidden">Next</button>
+            <button id="tutorial-end" class="btn">End Tutorial</button>
+        </div>
+    </div>
+
+    <script src="../game.js"></script> <script src="renderer.js"></script> <script src="main.js"></script>     </body>
+</html>
